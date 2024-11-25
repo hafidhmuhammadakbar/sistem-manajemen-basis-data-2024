@@ -1,4 +1,4 @@
 /.env
 /venv
 /__pycache__
-/templates/__pycache__
+/app/__pycache__
