@@ -98,7 +98,7 @@ def continents():
         
         # Execute a query
         cursor.execute('''
-            SELECT Name AS Continent, FORMAT(Area, 'N1') AS Area FROM continent
+            SELECT Name AS Name, FORMAT(Area, 'N1') AS Area FROM continent
         ''')
         
         # Fetch the results
@@ -145,4 +145,70 @@ def create_continent():
 
     # Render the form for GET request
     return render_template('create_continent.html')
+
+# Delete a continent
+@routes.route('/continent/delete/<name>', methods=['POST'])
+def delete_continent(name):
+    # Get a connection to the database
+    conn = create_connection()
+    
+    # Check if the connection was successful
+    if conn:
+        cursor = conn.cursor()
+        try:
+            # Delete the continent from the database
+            cursor.execute('DELETE FROM continent WHERE Name = ?', (name,))
+            conn.commit()  # Commit the transaction
+            
+            # Redirect to the continent list with a success message
+            flash('Continent deleted successfully!', 'success')
+        except Exception as e:
+            flash(f'Error: {str(e)}', 'danger')
+        finally:
+            cursor.close()
+            conn.close()  # Ensure the connection is closed
+    else:
+        flash('Error: Unable to connect to the database.', 'danger')
+    
+    return redirect(url_for('routes.continents'))
+
+# Update a continent
+@routes.route('/continent/update/<name>', methods=['GET', 'POST'])
+def update_continent(name):
+    conn = create_connection()
+    if conn:
+        cursor = conn.cursor()
+        try:
+            # Decode the name if it's URL-encoded
+            name = name.replace('%20', ' ')  # Handle spaces, if needed
+
+            if request.method == 'POST':
+                # Get updated data from the form
+                new_name = request.form['name']
+                area = request.form['area']
+
+                # Update the continent in the database
+                cursor.execute('UPDATE continent SET Name = ?, Area = ? WHERE Name = ?', (new_name, area, name))
+                conn.commit()
+
+                flash('Continent updated successfully!', 'success')
+                return redirect(url_for('routes.continents'))
+
+            # For GET request, fetch current data to pre-fill the form
+            cursor.execute('SELECT Name, Area FROM continent WHERE Name = ?', (name,))
+            continent = cursor.fetchone()
+            if not continent:
+                flash('Continent not found!', 'danger')
+                return redirect(url_for('routes.continents'))
+
+            # Pass the current data to the form
+            return render_template('update_continent.html', continent={'name': continent[0], 'area': continent[1]})
+        except Exception as e:
+            flash(f'Error: {str(e)}', 'danger')
+        finally:
+            cursor.close()
+            conn.close()
+    else:
+        flash('Error: Unable to connect to the database.', 'danger')
+        return redirect(url_for('routes.continents'))
 
