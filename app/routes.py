@@ -212,3 +212,82 @@ def update_continent(name):
         flash('Error: Unable to connect to the database.', 'danger')
         return redirect(url_for('routes.continents'))
 
+# Get list of resources in the country
+@routes.route('/country/resources', methods=['GET'])
+def country_resources_search():
+    country_code = request.args.get('country_code')
+
+    conn = create_connection()
+
+    try:
+        cursor = conn.cursor()
+
+        # Execute the stored procedure with the country code
+        cursor.execute("EXEC sp_country_resources @Country=?", (country_code,))
+        
+        # Fetch the result (expecting one row of results)
+        result = cursor.fetchone()
+
+        if result:
+            resources = {
+                'CountryCode': result[0],
+                'RiverTotal': result[1],
+                'LakeTotal': result[2],
+                'MountainTotal': result[3],
+                'IslandTotal': result[4]
+            }
+            return render_template('country_resources.html', resources=[resources])
+        else:
+            return render_template('country_resources.html', resources=None)
+
+    except Exception as e:
+        flash(f'Error: {str(e)}', 'danger')
+        return render_template('country_resources.html', resources=None)
+    finally:
+        cursor.close()
+        conn.close()
+
+# Display the list of countries and their GDP Per Capita
+@routes.route('/country/gdp')
+def country_gdp():
+    # Get the current page number from the query string (default to page 1)
+    page = request.args.get('page', 1, type=int)
+    per_page = 10  # Number of items per page
+    
+    # Calculate the starting row for the query (offset)
+    offset = (page - 1) * per_page
+    
+    # Get a connection to the database
+    conn = create_connection()
+    
+    if conn:
+        # Create a cursor from the connection
+        cursor = conn.cursor()
+        
+        # Execute a query with pagination using OFFSET and FETCH NEXT
+        cursor.execute('''
+            SELECT Code, Name, Capital, FORMAT(Population, 'N0') AS Population, FORMAT(dbo.udf_CountryGDPPerCapita(Code), 'N6') GDPPerCapita
+            FROM country
+            ORDER BY GDPPerCapita DESC  -- or any other column for sorting
+            OFFSET ? ROWS
+            FETCH NEXT ? ROWS ONLY
+        ''', (offset, per_page))
+        
+        # Fetch the results
+        countries = cursor.fetchall()
+        
+        # Get the total count of rows to calculate the number of pages
+        cursor.execute('SELECT COUNT(*) FROM Country')
+        total_count = cursor.fetchone()[0]
+        
+        # Close the cursor and connection
+        cursor.close()
+        conn.close()
+        
+        # Calculate total number of pages
+        total_pages = (total_count + per_page - 1) // per_page
+        
+        # Pass the results, total pages, and current page to the template
+        return render_template('country_gdp.html', countries=countries, total_pages=total_pages, current_page=page)
+    else:
+        return render_template('country_gdp.html', countries=None)
