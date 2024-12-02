@@ -81,8 +81,10 @@ def country():
     else:
         return render_template('country.html', countries=None)
     
-@routes.route('/continent')
-def continents():
+
+    
+@routes.route('/country')
+def countries():
     # Get a connection to the database
     conn = create_connection()
     
@@ -92,26 +94,26 @@ def continents():
         cursor = conn.cursor()
         
         # Execute a query
-        cursor.execute('SELECT C.Name AS Continent, COUNT(DISTINCT E.Country) AS CountryCount FROM continent C LEFT JOIN encompasses E ON C.Name = e.Continent GROUP BY C.Name')
+        cursor.execute('SELECT C.Name AS country, COUNT(DISTINCT E.Country) AS CountryCount FROM country C LEFT JOIN encompasses E ON C.Name = e.country GROUP BY C.Name')
         
         # Fetch the results
-        continents = cursor.fetchall()
+        countries = cursor.fetchall()
         
         # Close the cursor and connection
         cursor.close()
         conn.close()
         
         # Pass the results to the template
-        return render_template('continent.html', continents=continents)
+        return render_template('country.html', countries=countries)
     else:
-        return render_template('continent.html', continents=None)
-    
-@routes.route('/continent/create', methods=['GET', 'POST'])
-def create_continent():
+        return render_template('country.html', countries=None)
+
+@routes.route('/country/create', methods=['GET', 'POST'])
+def create_country():
     # Handle the form submission when the method is POST
     if request.method == 'POST':
-        continent_name = request.form['name']
-        continent_area = request.form['area']
+        country_name = request.form['name']
+        country_area = request.form['area']
         
         # Get a connection to the database
         conn = create_connection()
@@ -120,13 +122,13 @@ def create_continent():
         if conn:
             cursor = conn.cursor()
             try:
-                # Insert the new continent into the database
-                cursor.execute('INSERT INTO continent (Name, Area) VALUES (?, ?)', (continent_name, continent_area))
+                # Insert the new country into the database
+                cursor.execute('INSERT INTO country (Name, Area) VALUES (?, ?)', (country_name, country_area))
                 conn.commit()  # Commit the transaction
                 
-                # Redirect to the continent list with a success message
-                flash('Continent added successfully!', 'success')
-                return redirect(url_for('routes.continents'))
+                # Redirect to the country list with a success message
+                flash('country added successfully!', 'success')
+                return redirect(url_for('routes.countries'))
             except Exception as e:
                 flash(f'Error: {str(e)}', 'danger')  # Flash error message
             finally:
@@ -136,7 +138,7 @@ def create_continent():
         flash('Failed to connect to the database', 'danger')  # Error if connection failed
 
     # Render the form for GET request
-    return render_template('create_continent.html')
+    return render_template('create_country.html')
 
 @routes.route('/continent/update', methods=['GET', 'POST'])
 def edit_continent():
