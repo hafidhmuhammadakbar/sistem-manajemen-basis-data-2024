@@ -4,14 +4,17 @@ from connect import create_connection
 # Create a blueprint for modular routing
 routes = Blueprint('routes', __name__)
 
+# Redirect the root URL to the home page
 @routes.route('/')
 def index():
     return redirect(url_for('routes.home'))
 
+# Display the home page
 @routes.route('/home')
 def home():
     return render_template('home.html')
 
+# Display the list of top 10 countries 
 # @routes.route('/country')
 # def country():
 #     # Get a connection to the database
@@ -37,6 +40,7 @@ def home():
 #     else:
 #         return render_template('country.html', countries=None)
 
+# Display the list of countries with pagination
 @routes.route('/country')
 def country():
     # Get the current page number from the query string (default to page 1)
@@ -80,7 +84,8 @@ def country():
         return render_template('country.html', countries=countries, total_pages=total_pages, current_page=page)
     else:
         return render_template('country.html', countries=None)
-    
+
+# Display the list of continents
 @routes.route('/continent')
 def continents():
     # Get a connection to the database
@@ -92,7 +97,9 @@ def continents():
         cursor = conn.cursor()
         
         # Execute a query
-        cursor.execute('SELECT C.Name AS Continent, COUNT(DISTINCT E.Country) AS CountryCount FROM continent C LEFT JOIN encompasses E ON C.Name = e.Continent GROUP BY C.Name')
+        cursor.execute('''
+            SELECT Name AS Continent, FORMAT(Area, 'N1') AS Area FROM continent
+        ''')
         
         # Fetch the results
         continents = cursor.fetchall()
@@ -105,7 +112,8 @@ def continents():
         return render_template('continent.html', continents=continents)
     else:
         return render_template('continent.html', continents=None)
-    
+
+# Display the form to create a new continent
 @routes.route('/continent/create', methods=['GET', 'POST'])
 def create_continent():
     # Handle the form submission when the method is POST
@@ -137,3 +145,4 @@ def create_continent():
 
     # Render the form for GET request
     return render_template('create_continent.html')
+
