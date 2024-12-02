@@ -137,3 +137,32 @@ def create_continent():
 
     # Render the form for GET request
     return render_template('create_continent.html')
+
+@routes.route('/continent/update', methods=['GET', 'POST'])
+def edit_continent():
+
+    if request.method == 'POST':
+        continent_id = request.form['id']
+        continent_name = request.form['name']
+        continent_area = request.form['area']
+        
+        # Get a connection to the database
+        conn = create_connection()
+
+        if conn:
+            cursor = conn.cursor()
+            try:
+                # Insert the new continent into the database
+                cursor.execute('UPDATE continent SET Name = ? , Area = ? WHERE id = ?', (continent_name, continent_area, continent_id))
+                conn.commit()  # Commit the transaction
+                
+                # Redirect to the continent list with a success message
+                flash('Continent added successfully!', 'success')
+                return redirect(url_for('routes.continents'))
+            except Exception as e:
+                flash(f'Error: {str(e)}', 'danger')  # Flash error message
+            finally:
+                cursor.close()
+                conn.close()
+
+    return render_template('update_continent.html')

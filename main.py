@@ -11,7 +11,7 @@ def create_app():
     app = Flask(__name__, template_folder='app/templates')
 
     # Set the secret key using an environment variable
-    app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
+    # app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 
     # Register the routes blueprint
     app.register_blueprint(routes)
