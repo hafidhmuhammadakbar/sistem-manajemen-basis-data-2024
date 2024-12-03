@@ -8,6 +8,74 @@ routes = Blueprint('routes', __name__)
 def index():
     return redirect(url_for('routes.home'))
 
+@routes.route('/login', methods=['GET', 'POST'])
+def login():
+
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        
+        # Get a connection to the database
+        conn = create_connection()
+
+        if conn:
+            cursor = conn.cursor()
+            try:
+                # Create login
+                conn.execute('CREATE LOGIN myLogin WITH PASSWORD = ?', (password));
+                conn.commit()
+
+                # Create User
+                conn.execute('CREATE USER ? FOR LOGIN myLogin;', (username));
+                conn.commit()
+                
+                # Redirect to the continent list with a success message
+                flash('Login Success!', 'success')
+                return redirect(url_for('routes.home'))
+            except Exception as e:
+                flash(f'Error: {str(e)}', 'danger')  # Flash error message
+            finally:
+                cursor.close()
+                conn.close()
+
+    # return redirect(url_for('routes.home'))
+    return render_template('login.html')
+
+@routes.route('/logout', methods=['POST'])
+def logout():
+    user_id = request.form.get('user_id')  # Assume the user's ID is sent with the form
+    conn = create_connection()
+    cursor = conn.cursor()
+
+@routes.route('/register', methods=['GET', 'POST'])
+def register():
+
+    if request.method == 'POST':
+        username = request.form['username']
+        
+        # Get a connection to the database
+        conn = create_connection()
+
+        if conn:
+            cursor = conn.cursor()
+            try:
+                conn.execute('''
+                                ALTER ROLE CountryRole ADD MEMBER ?;
+                                ALTER ROLE ContinentRole ADD MEMBER ?;
+                                ''', (username, username))
+                conn.commit()
+
+                flash('Register Success!', 'success')
+                return redirect(url_for('routes.home'))
+            except Exception as e:
+                flash(f'Error: {str(e)}', 'danger')  # Flash error message
+            finally:
+                cursor.close()
+                conn.close()
+
+    # return redirect(url_for('routes.home'))
+    return render_template('register.html')
+
 @routes.route('/home')
 def home():
     return render_template('home.html')
