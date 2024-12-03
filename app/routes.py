@@ -14,32 +14,30 @@ def index():
 @routes.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        name = request.form['name']
-        email = request.form['email']
+        username = request.form['username']
         password = request.form['password']
         confirm_password = request.form['confirm_password']
         
         # Validate form inputs
-        if not name or not email or not password:
+        if not username or not password:
             flash('Please fill in all fields.', 'danger')
         elif password != confirm_password:
             flash('Passwords do not match.', 'danger')
         else:
             # Create a database connection
-            conn = create_connection()  # Assuming this function establishes a database connection
+            conn = create_connection() 
             
             if conn:
                 try:
                     cursor = conn.cursor()
                     
                     # Hash the password (important for security)
-                    hashed_password = generate_password_hash(password)
+                    # hashed_password = generate_password_hash(password)
                     
                     # Insert the new user into the database
                     cursor.execute('''
-                        INSERT INTO users (name, email, password)
-                        VALUES (?, ?, ?)
-                    ''', (name, email, hashed_password))
+                                EXECUTE dbo.sp_create_account @Name=?, @Password=?
+                        ''', (username, password))
                     
                     # Commit changes and close the connection
                     conn.commit()
@@ -49,8 +47,8 @@ def register():
                     flash('Registration successful! You can now log in.', 'success')
                     return redirect('/login')  # Redirect to login page
                 except Exception as e:
-                    # Handle cases like duplicate emails
-                    flash(f'The email {email} is already registered.', 'danger')
+                    # Handle cases like duplicate usernames
+                    flash(f'Error: {str(e)}. The username may already be registered.', 'danger')
                     conn.close()
             else:
                 flash('Database connection failed.', 'danger')
@@ -61,35 +59,17 @@ def register():
 @routes.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        email = request.form['email']
+        username = request.form['username']
         password = request.form['password']
         
         # Create a connection to the database
-        conn = create_connection()
+        conn = create_connection(username, password)
         
-        if conn:
-            cursor = conn.cursor()
-            
-            # Query only the hashed password for the provided email
-            cursor.execute('SELECT Password FROM Users WHERE email = ?', (email,))
-            user = cursor.fetchone()
-            
-            cursor.close()
-            conn.close()
-            
-            if user:
-                hashed_password = user[0]
-                
-                # Verify the hashed password
-                if check_password_hash(hashed_password, password):
-                    # Fill the session with the user's email
-                    session['email'] = email
-                    flash('Login successful!', 'success')
-                    return redirect(url_for('routes.home'))
-                else:
-                    flash('Invalid email or password', 'danger')
-            else:
-                flash('Invalid email or password', 'danger')
+        if conn:    
+            session['email'] = username
+            session['password'] = password
+            flash('Login successful!', 'success')
+            return redirect(url_for('routes.home'))
         else:
             flash('Failed to connect to the database', 'danger')
         
