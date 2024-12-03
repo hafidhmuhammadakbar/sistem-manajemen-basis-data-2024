@@ -208,6 +208,31 @@ def create_country():
     # Render the form for GET request
     return render_template('create_country.html')
 
+@routes.route('/continent')
+def countries():
+    # Get a connection to the database
+    conn = create_connection()
+    
+    # Check if the connection was successful
+    if conn:
+        # Create a cursor from the connection
+        cursor = conn.cursor()
+        
+        # Execute a query
+        cursor.execute('SELECT C.Name AS continent, COUNT(DISTINCT E.Country) AS CountryCount FROM continent C LEFT JOIN encompasses E ON C.Name = e.country GROUP BY C.Name')
+        
+        # Fetch the results
+        countries = cursor.fetchall()
+        
+        # Close the cursor and connection
+        cursor.close()
+        conn.close()
+        
+        # Pass the results to the template
+        return render_template('country.html', countries=countries)
+    else:
+        return render_template('country.html', countries=None)
+
 @routes.route('/continent/update', methods=['GET', 'POST'])
 def edit_continent():
 
