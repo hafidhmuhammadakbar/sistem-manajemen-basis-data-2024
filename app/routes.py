@@ -52,6 +52,7 @@ def register():
 
     if request.method == 'POST':
         username = request.form['username']
+        role = request.form['role']
         
         # Get a connection to the database
         conn = create_connection()
@@ -60,9 +61,8 @@ def register():
             cursor = conn.cursor()
             try:
                 conn.execute('''
-                                ALTER ROLE CountryRole ADD MEMBER ?;
-                                ALTER ROLE ContinentRole ADD MEMBER ?;
-                                ''', (username, username))
+                                ALTER ROLE ? ADD MEMBER ?;
+                                ''', (role, username))
                 conn.commit()
 
                 flash('Register Success!', 'success')
