@@ -41,11 +41,11 @@ def login():
     # return redirect(url_for('routes.home'))
     return render_template('login.html')
 
-@routes.route('/logout', methods=['POST'])
-def logout():
-    user_id = request.form.get('user_id')  # Assume the user's ID is sent with the form
-    conn = create_connection()
-    cursor = conn.cursor()
+# @routes.route('/logout', methods=['POST'])
+# def logout():
+#     user_id = request.form.get('user_id')
+#     conn = create_connection()
+#     cursor = conn.cursor()
 
 @routes.route('/register', methods=['GET', 'POST'])
 def register():
