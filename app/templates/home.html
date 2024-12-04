@@ -65,6 +65,7 @@
           {% endif %}
         {% endwith %}
 
+        {% if role == 'country' %}
         <div class="row">
           <div class="col-md-6 mb-4">
             <div class="card shadow-lg">
@@ -76,7 +77,9 @@
               </div>
             </div>
           </div>
+          {% endif %}
     
+          {% if role == 'continent' %}
           <div class="col-md-6 mb-4">
             <div class="card shadow-lg">
               <img src="https://via.placeholder.com/500x300" class="card-img-top" alt="Continents">
@@ -87,6 +90,8 @@
               </div>
             </div>
           </div>
+          {% endif %}
+
         </div>
       </div>
     </main>

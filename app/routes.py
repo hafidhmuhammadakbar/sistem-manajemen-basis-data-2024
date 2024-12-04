@@ -18,6 +18,7 @@ def register():
         email = request.form['email']
         password = request.form['password']
         confirm_password = request.form['confirm_password']
+        role = request.form['role']
         
         # Validate form inputs
         if not name or not email or not password:
@@ -37,9 +38,9 @@ def register():
                     
                     # Insert the new user into the database
                     cursor.execute('''
-                        INSERT INTO users (name, email, password)
-                        VALUES (?, ?, ?)
-                    ''', (name, email, hashed_password))
+                        INSERT INTO users (name, email, password, role)
+                        VALUES (?, ?, ?, ?)
+                    ''', (name, email, hashed_password, role))
                     
                     # Commit changes and close the connection
                     conn.commit()
@@ -71,7 +72,7 @@ def login():
             cursor = conn.cursor()
             
             # Query only the hashed password for the provided email
-            cursor.execute('SELECT Password FROM Users WHERE email = ?', (email,))
+            cursor.execute('SELECT password, role FROM Users WHERE email = ?', (email))
             user = cursor.fetchone()
             
             cursor.close()
@@ -79,11 +80,13 @@ def login():
             
             if user:
                 hashed_password = user[0]
+                role = user[1]
                 
                 # Verify the hashed password
                 if check_password_hash(hashed_password, password):
                     # Fill the session with the user's email
                     session['email'] = email
+                    session['role'] = role
                     flash('Login successful!', 'success')
                     return redirect(url_for('routes.home'))
                 else:
@@ -106,7 +109,7 @@ def logout():
 @routes.route('/home')
 def home():
     if 'email' in session:
-        return render_template('home.html')
+        return render_template('home.html', role=session['role'])
     else:
         return redirect(url_for('routes.login'))
 
