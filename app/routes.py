@@ -68,7 +68,7 @@ def login():
         if conn:    
             session['email'] = username
             session['password'] = password
-            flash('Login successful!', 'success')
+            flash(f'Login successful!, Welcome {session["email"]}', 'success')
             return redirect(url_for('routes.home'))
         else:
             flash('Failed to connect to the database', 'danger')
@@ -95,7 +95,7 @@ def home():
 # def country():
 #     if 'email' in session:
 #         # Get a connection to the database
-#         conn = create_connection()
+#         conn = create_connection(session['email'], session['password'])
         
 #         # Check if the connection was successful
 #         if conn:
@@ -131,7 +131,7 @@ def country():
         offset = (page - 1) * per_page
         
         # Get a connection to the database
-        conn = create_connection()
+        conn = create_connection(session['email'], session['password'])
         
         if conn:
             # Create a cursor from the connection
@@ -171,7 +171,7 @@ def country():
 def continents():
     if 'email' in session:
         # Get a connection to the database
-        conn = create_connection()
+        conn = create_connection(session['email'], session['password'])
         
         # Check if the connection was successful
         if conn:
@@ -207,7 +207,7 @@ def create_continent():
             continent_area = request.form['area']
             
             # Get a connection to the database
-            conn = create_connection()
+            conn = create_connection(session['email'], session['password'])
             
             # Check if the connection was successful
             if conn:
@@ -238,7 +238,7 @@ def create_continent():
 def delete_continent(name):
     if 'email' in session:
         # Get a connection to the database
-        conn = create_connection()
+        conn = create_connection(session['email'], session['password'])
         
         # Check if the connection was successful
         if conn:
@@ -266,7 +266,7 @@ def delete_continent(name):
 @routes.route('/continent/update/<name>', methods=['GET', 'POST'])
 def update_continent(name):
     if 'email' in session:
-        conn = create_connection()
+        conn = create_connection(session['email'], session['password'])
         if conn:
             cursor = conn.cursor()
             try:
@@ -310,7 +310,7 @@ def update_continent(name):
 def country_resources_search():
     if 'email' in session:
         country_code = request.args.get('country_code')
-        conn = create_connection()
+        conn = create_connection(session['email'], session['password'])
 
         try:
             cursor = conn.cursor()
@@ -354,7 +354,7 @@ def country_gdp():
         offset = (page - 1) * per_page
         
         # Get a connection to the database
-        conn = create_connection()
+        conn = create_connection(session['email'], session['password'])
         
         if conn:
             # Create a cursor from the connection

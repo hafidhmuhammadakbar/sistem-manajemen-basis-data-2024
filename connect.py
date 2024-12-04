@@ -12,12 +12,9 @@ def create_connection(username=None, password=None):
     if username is None:
         username = os.getenv('DB_USER')
         password = os.getenv('DB_PASSWORD')
-        
-        # create the connection string
-        connection_string = f'DRIVER={{SQL Server}};SERVER={server};UID={username};PWD={password}'    
-    else:
-        database = os.getenv('DB_NAME')
-        connection_string = f'DRIVER={{SQL Server}};SERVER={server};DATABASE={database};UID={username};PWD={password}'
+    
+    database = os.getenv('DB_NAME')
+    connection_string = f'DRIVER={{SQL Server}};SERVER={server};DATABASE={database};UID={username};PWD={password}'
 
     # try to connect to the database
     try:
