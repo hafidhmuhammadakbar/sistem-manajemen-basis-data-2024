@@ -19,6 +19,7 @@
           </button>
           <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
+              {% if session['role'] == 'country' %}
               <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                   Dropdown
@@ -28,12 +29,17 @@
                   <li><a class="dropdown-item" href="/country/resources">Country Resources</a></li>
                 </ul>
               </li>
+              {% endif %}
+              {% if session['role'] == 'continent' %}
               <li class="nav-item">
                 <a class="nav-link" href="/continent">Continent</a>
               </li>
+              {% endif %}
+              {% if session['role'] == 'country' %}
               <li class="nav-item">
                 <a class="nav-link" href="/country">Country</a>
               </li>
+              {% endif %}
               <li class="nav-item">
                 <a class="nav-link" href="/home">Home</a>
               </li>

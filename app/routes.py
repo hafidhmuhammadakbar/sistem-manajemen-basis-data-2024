@@ -146,6 +146,10 @@ def home():
 @routes.route('/country')
 def country():
     if 'email' in session:
+        
+        if session['role'] == 'continent':
+            return redirect(url_for('routes.home'))
+        
         # Get the current page number from the query string (default to page 1)
         page = request.args.get('page', 1, type=int)
         per_page = 10  # Number of items per page
@@ -193,6 +197,9 @@ def country():
 @routes.route('/continent')
 def continents():
     if 'email' in session:
+        if session['role'] == 'country':
+            return redirect(url_for('routes.country'))
+        
         # Get a connection to the database
         conn = create_connection()
         
@@ -224,6 +231,9 @@ def continents():
 @routes.route('/continent/create', methods=['GET', 'POST'])
 def create_continent():
     if 'email' in session:
+        if session['role'] == 'country':
+            return redirect(url_for('routes.country'))
+        
         # Handle the form submission when the method is POST
         if request.method == 'POST':
             continent_name = request.form['name']
@@ -260,6 +270,9 @@ def create_continent():
 @routes.route('/continent/delete/<name>', methods=['POST'])
 def delete_continent(name):
     if 'email' in session:
+        if session['role'] == 'country':
+            return redirect(url_for('routes.country'))
+        
         # Get a connection to the database
         conn = create_connection()
         
@@ -289,6 +302,10 @@ def delete_continent(name):
 @routes.route('/continent/update/<name>', methods=['GET', 'POST'])
 def update_continent(name):
     if 'email' in session:
+        
+        if session['role'] == 'country':
+            return redirect(url_for('routes.country'))
+        
         conn = create_connection()
         if conn:
             cursor = conn.cursor()
@@ -332,6 +349,9 @@ def update_continent(name):
 @routes.route('/country/resources', methods=['GET'])
 def country_resources_search():
     if 'email' in session:
+        if session['role'] == 'continent':
+            return redirect(url_for('routes.home'))
+        
         country_code = request.args.get('country_code')
         conn = create_connection()
 
@@ -369,6 +389,9 @@ def country_resources_search():
 @routes.route('/country/gdp')
 def country_gdp():
     if 'email' in session:
+        if session['role'] == 'continent':
+            return redirect(url_for('routes.home'))
+        
         # Get the current page number from the query string (default to page 1)
         page = request.args.get('page', 1, type=int)
         per_page = 10  # Number of items per page
