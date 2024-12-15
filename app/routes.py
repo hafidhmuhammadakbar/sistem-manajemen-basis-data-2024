@@ -197,8 +197,9 @@ def country():
 @routes.route('/continent')
 def continents():
     if 'email' in session:
+        
         if session['role'] == 'country':
-            return redirect(url_for('routes.country'))
+            return redirect(url_for('routes.home'))
         
         # Get a connection to the database
         conn = create_connection()
@@ -231,8 +232,11 @@ def continents():
 @routes.route('/continent/create', methods=['GET', 'POST'])
 def create_continent():
     if 'email' in session:
+        
+        # if country role want to access continent page
+        # it will redirect to country page
         if session['role'] == 'country':
-            return redirect(url_for('routes.country'))
+            return redirect(url_for('routes.home'))
         
         # Handle the form submission when the method is POST
         if request.method == 'POST':
@@ -271,7 +275,7 @@ def create_continent():
 def delete_continent(name):
     if 'email' in session:
         if session['role'] == 'country':
-            return redirect(url_for('routes.country'))
+            return redirect(url_for('routes.home'))
         
         # Get a connection to the database
         conn = create_connection()
@@ -304,7 +308,7 @@ def update_continent(name):
     if 'email' in session:
         
         if session['role'] == 'country':
-            return redirect(url_for('routes.country'))
+            return redirect(url_for('routes.home'))
         
         conn = create_connection()
         if conn:
